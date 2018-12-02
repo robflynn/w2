@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "then",
+        "repositoryURL": "https://github.com/freshOS/then.git",
+        "state": {
+          "branch": null,
+          "revision": "7e1cfa46370f02d8474e8733001161e652744bdb",
+          "version": "4.2.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
