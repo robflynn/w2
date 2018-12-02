@@ -1,4 +1,5 @@
 import then
+import Commander
 
 protocol API {
 
@@ -20,11 +21,22 @@ class Client: API {
     }
 }
 
+func listWebsites() {
+    let websites = try! await(api.websites()) 
+
+    for website in websites {
+        print(website.name)
+    }
+}
+
 // get list of websites
 let api = Client()
 
-let websites = try! await(api.websites())
 
-for website in websites {
-    print(website.name)
-}
+
+print("hi. i'm webster. /\\oo/\\")
+print("")
+
+Group {
+    $0.command("list") { listWebsites() }
+}.run()
