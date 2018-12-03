@@ -1,38 +1,29 @@
+import Foundation
 import then
 import Commander
+import SwiftyBeaver
 
-protocol API {
-
-}
-
-extension API {
-
-}
-
-struct Website {
-    var name: String
-}
-
-class Client: API {
-    func websites() -> Promise<[Website]> {
-        return Promise<[Website]> { resolve, reject in 
-            resolve([Website(name: "Google"), Website(name: "Apple")])
-        }        
-    }
-}
+let logger = SwiftyBeaver.self
+logger.addDestination(ConsoleDestination())  
 
 func listWebsites() {
-    let websites = try! await(api.websites()) 
+    guard let websites = try? await(api.websites()) else {
+        print("Error retrieving websites.")
 
-    for website in websites {
-        print(website.name)
+        return
+    }
+
+    if websites.isEmpty {
+        print("Webster doesn't see any websites.")
+    }
+
+    for (index, website) in websites.enumerated() {
+        print("\(index + 1). \(website.name) (\(website.url))")
     }
 }
 
 // get list of websites
-let api = Client()
-
-
+let api = BrooklynClient()
 
 print("hi. i'm webster. /\\oo/\\")
 print("")
