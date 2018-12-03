@@ -8,6 +8,7 @@ public final class Logger {
     }
 }
 
+let crawlingCount = 0
 let logger = Logger.self
 
 func getWebsites() -> [Website] {
@@ -53,6 +54,66 @@ func createJob(forWebsiteNamed name: String, atURL urlString: String) {
 
             exit(-1)
     }
+
+    print("Created website: \(website.name) (\(website.url))")
+}
+
+struct PageResponse {
+    let fetchResponse: FetchResponse
+    let page: Page
+}
+
+func visit(_ page: Page) -> Promise<PageResponse> {
+    return Promise<PageResponse> { resolve, reject in     
+        try? fetch(from: page.url) {            
+            resolve(PageResponse(fetchResponse: $0, page: page))
+        }
+    }
+}
+
+func sendPageToServer(response: PageResponse) -> Promise<Page> {
+    return Promise<Page> { resolve, reject in
+        api.update(page: response.page, withResponse: response.fetchResponse).then({ page in
+            logger.debug(page)
+
+            resolve(page)
+        })
+    }
+}
+
+func crawlLoop(website: Website) {
+    let pageGroup = DispatchGroup()
+    let pageDispatchQueue = DispatchQueue(label: "websterPageQueue", attributes: .concurrent)
+
+    // Get a batch of pages
+    let pageBatch = getPageQueue(for: website)
+    logger.debug(pageBatch)    
+
+    if pageBatch.pages.isEmpty {
+        print("No pages to crawl.")
+
+        exit(0)
+    }
+
+    for page in pageBatch.pages {
+        pageGroup.enter()
+
+        pageDispatchQueue.async {
+            visit(page)
+            .then(sendPageToServer)
+            .finally {
+                pageGroup.leave()
+            }
+        }           
+    }    
+
+    pageGroup.notify(queue: .main) {
+        DispatchQueue.main.async {
+            logger.debug("Finished with crawl queue. Looping.")
+
+            crawlLoop(website: website)
+        }
+    }
 }
 
 func crawlWebsite(named name: String) {
@@ -66,10 +127,10 @@ func crawlWebsite(named name: String) {
 
     print("Crawling \(website.url) ...")
 
-    // Get a batch of pages
-    let pageBatch = getPageQueue(for: website)
-    
-    print(pageBatch)
+    crawlLoop(website: website)
+
+    // Fire up the main event loop, we're gonna be here a while
+    dispatchMain()    
 }
 
 // get list of websites

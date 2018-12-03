@@ -37,6 +37,14 @@ extension JSONAPIClient {
         return call(as: requestedType, path: path, using: .post, withParameters: params, completion: completion)
     }
 
+    func patch<T: Decodable>(as requestedType: T.Type = T.self, to path: String, completion: CompletionHandler<T>?) {        
+        return call(as: requestedType, path: path, using: .patch, withParameters: [:], completion: completion)
+    }
+
+    func patch<T: Decodable>(as requestedType: T.Type = T.self, to path: String, withParameters params: RequestParameters, completion: CompletionHandler<T>?) {        
+        return call(as: requestedType, path: path, using: .patch, withParameters: params, completion: completion)
+    }
+    
     func call<T: Decodable>(as requestedType: T.Type = T.self, path: String, using method: HTTPMethod, withParameters params: RequestParameters, completion: CompletionHandler<T>?) {
         // Make the actuall call
         request(path: path, using: method, withParameters: params) { response in

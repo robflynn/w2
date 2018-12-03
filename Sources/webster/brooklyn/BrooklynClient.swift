@@ -56,4 +56,27 @@ class BrooklynClient: JSONAPIClient {
             }
         }
     }
+
+    // FIXME: I don't like this client and the Fetcher having this dependency
+    // TODO: Too tired to deal with this right now and want to move on
+    func update(page: Page, withResponse response: FetchResponse) -> Promise<Page> {
+        return Promise<Page> { resolve, reject in         
+            let params: RequestParameters = [
+                "page_id": page.id,
+                "content_type": response.contentType,
+                "content": response.content,
+                "response_code": response.responseCode,
+                "error": response.error
+            ]
+
+            self.patch(as: Page.self, to: "/websites/\(page.website_id)/update_page", withParameters: params) { response in 
+                switch response {
+                    case .success(let data):
+                        resolve(data)
+                    case .failure(let error):
+                        reject(error)
+                }
+            }
+        }
+    }
 }
