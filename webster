@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Build the app
+COMPILE=`swift build`
+
+if [ "$?" -eq "0" ]; then
+	./.build/debug/webster $@
+fi
+

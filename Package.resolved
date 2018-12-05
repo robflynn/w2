@@ -20,15 +20,6 @@
         }
       },
       {
-        "package": "SwiftyBeaver",
-        "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
-        "state": {
-          "branch": null,
-          "revision": "562a81878674cc8bd74efab274776c35d2519d04",
-          "version": "1.6.1"
-        }
-      },
-      {
         "package": "then",
         "repositoryURL": "https://github.com/freshOS/then.git",
         "state": {
