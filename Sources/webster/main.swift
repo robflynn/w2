@@ -51,6 +51,7 @@ func createJob(forWebsiteNamed name: String, atURL urlString: String) {
     }
 
     print("Created website: \(website.name) (\(website.url))")
+    print("You can view the progress at:\u{001B}[0;32m http://localhost:5000/status/\(website.name) \u{001B}[0;0m")
 }
 
 // get list of websites
