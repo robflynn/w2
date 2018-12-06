@@ -48,10 +48,8 @@ class Webster {
     private func crawlLoop(completion: (() -> Void)? = nil) {
         // Get a batch of pages
         let pageBatch = getPageQueue(for: website)
-        let pageLoaderQueue = DispatchQueue(label: "com.thingerly.webster.pageloaderque")        
-        var delay: TimeInterval
 
-        logger.debug("received page batch (\(pageBatch.pages.count)):")
+        logger.error("Received page batch (\(pageBatch.pages.count)):")
 
         if pageBatch.pages.isEmpty {
             print("No pages to crawl.")
@@ -62,7 +60,7 @@ class Webster {
         }
 
         // Set up the throttler
-        let bucket = TokenBucket(capacity: Int(self.rate), tokensPerInterval: 1, interval: 1 / self.rate, initialTokenCount: 1)
+        let bucket = TokenBucket(capacity: Int(self.rate), tokensPerInterval: 1, interval: 1 / self.rate)
 
         // Set up a page group for monitoring our page completions
         let pageGroup = DispatchGroup()
@@ -83,6 +81,8 @@ class Webster {
 
         // Wait until all of our page requests have completed
         pageGroup.wait()
+
+        crawlLoop(completion: completion)
     }
 
     ///

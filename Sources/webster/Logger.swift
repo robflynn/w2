@@ -13,4 +13,8 @@ public final class Logger {
     static func warning(_ message: Any) {
         print("⚠️ ", message)
     }
+
+    static func error(_ message: Any) {
+        print("🚨 ", message)
+    }
 }
