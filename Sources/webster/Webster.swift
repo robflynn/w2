@@ -15,6 +15,7 @@ class Webster {
 
     var rate: Rate = Defaults.pagesPerSecond
     var state: WebsterState = .idle
+    var batchSize: Int = Defaults.batchSize
 
     private var website: Website    
 

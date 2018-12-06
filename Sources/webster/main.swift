@@ -53,22 +53,6 @@ func createJob(forWebsiteNamed name: String, atURL urlString: String) {
     print("Created website: \(website.name) (\(website.url))")
 }
 
-func crawlWebsite(named name: String, pagesPerSecond rate: TimeInterval = Defaults.pagesPerSecond) {
-    let websites = getWebsites()
-    
-    guard let website = websites.first(where: { $0.name == name }) else {
-        print("Could not find website named '\(name)\'")
-
-        return
-    }
-
-    print("Crawling \(website.url) ...")
-
-    Webster.crawl(website: website, rate: rate) {
-        logger.debug("Finished calling, command-spawned")
-    }
-}
-
 // get list of websites
 let api = BrooklynClient()
 
@@ -88,8 +72,45 @@ Group {
     $0.command("crawl", 
             Argument<String>("name", description: "The name of the website to crawl"),
             Option<TimeInterval>("rate", default: Defaults.pagesPerSecond, description: "Max page loads per second"),
-            Option<Int>("batch-size", default: 5, description: "Number of pages to claim in a single batch")
-        ) { (name: String, rate: TimeInterval, batch: Int) in 
-            crawlWebsite(named: name, pagesPerSecond: rate)
+            Option<Int>("batch-size", default: Defaults.batchSize, description: "Number of pages to claim in a single batch"),
+            Option<Int>("queues", default: 1, description: "Number of queues to crawl in parallel. This will multiply crawl rate by the number of queues.")            
+        ) { (name: String, rate: TimeInterval, batch: Int, queues: Int) in 
+            let websites = getWebsites()
+    
+            guard let website = websites.first(where: { $0.name == name }) else {
+                print("Could not find website named '\(name)\'")
+
+                return
+            }
+
+            print("Crawling \(website.url) ...")
+            print("Spiderlings: \(queues)")
+            print("Rate: \(rate) pages per second")
+            print("Batch Size: \(batch) pages")
+
+            let queueGroup = DispatchGroup()
+            let spiderlingQueue = DispatchQueue(label: "com.thingerly.webster.spiderling-queue", attributes: .concurrent)
+
+            for i in 1...queues {
+                queueGroup.enter()
+
+                spiderlingQueue.async {
+                    print("🕸️ Spidering-\(i) online...")
+                    
+                    let webster = Webster(website: website)
+                    webster.rate = rate
+                    webster.batchSize = batch                    
+
+                    
+                    webster.crawl {
+                        queueGroup.leave()
+
+                        logger.debug("Finished calling, command-spawned")
+                    }
+                    
+                }
+            }
+
+            queueGroup.wait()
         }
 }.run()
