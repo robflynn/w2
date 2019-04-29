@@ -11,7 +11,6 @@ struct FetchResponse {
 
 enum FetchError: Error {
     case InvalidURL(String)
-    case NetworkError(String)
 }
 
 /**
@@ -37,9 +36,15 @@ func fetch(from urlString: String, completion: ((FetchResponse) -> Void)?) throw
 
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
         guard
-            let httpResponse = response as? HTTPURLResponse,
-            let data = data else {
-                throw FetchError.NetworkError("Unknown Network Error: PageLoader")
+            let httpResponse = response as? HTTPURLResponse else {
+              print("The error was with the response code! EEKA SCHNEEKA")
+
+              assertionFailure("Some kind of network request problem happened!")
+        }
+            guard let data = data else {
+              print("The error was with the data = data part")
+              print("womble tomble")
+                assertionFailure("Some kind of network request problem happened!")
 
                 return
             }
