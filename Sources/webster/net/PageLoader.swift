@@ -11,6 +11,7 @@ struct FetchResponse {
 
 enum FetchError: Error {
     case InvalidURL(String)
+    case NetworkError(String)
 }
 
 /**
@@ -32,13 +33,13 @@ func fetch(from urlString: String, completion: ((FetchResponse) -> Void)?) throw
 
     // Set our request headers
     request.setValue("text/html; charset=utf-8", forHTTPHeaderField: "Accept")
-    request.setValue("text/html; charset=utf-8", forHTTPHeaderField: "Content-Type") 
+    request.setValue("text/html; charset=utf-8", forHTTPHeaderField: "Content-Type")
 
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
         guard
             let httpResponse = response as? HTTPURLResponse,
             let data = data else {
-                assertionFailure("Some kind of network request problem happened!")
+                throw FetchError.NetworkError("Unknown Network Error: PageLoader")
 
                 return
             }
@@ -56,7 +57,7 @@ func fetch(from urlString: String, completion: ((FetchResponse) -> Void)?) throw
             // If no content type is provided, default to unknown for later review
             let contentType = httpResponse.allHeaderFields["Content-Type"] as? String ?? "unknown"
 
-        
+
         let fetchResponse = FetchResponse(url: urlString, content: html, contentType: contentType, responseCode: httpResponse.statusCode, error: err)
 
         completion?(fetchResponse)
