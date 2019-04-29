@@ -36,17 +36,17 @@ func fetch(from urlString: String, completion: ((FetchResponse) -> Void)?) throw
 
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
         guard
-            let httpResponse = response as? HTTPURLResponse else {
-              print("The error was with the response code! EEKA SCHNEEKA")
+            let httpResponse = response as? HTTPURLResponse,
+            let data = data else {
+              let fetchResponse = FetchResponse(url: urlString,
+                                                content: "",
+                                                contentType: "text/plain",
+                                                responseCode: 500,
+                                                error: true)
 
-              assertionFailure("Some kind of network request problem happened!")
-        }
-            guard let data = data else {
-              print("The error was with the data = data part")
-              print("womble tomble")
-                assertionFailure("Some kind of network request problem happened!")
+              completion?(fetchResponse)
 
-                return
+              return
             }
 
             var html: String?
