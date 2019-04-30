@@ -17,7 +17,7 @@ class Webster {
     var state: WebsterState = .idle
     var batchSize: Int = Defaults.batchSize
 
-    private var website: Website    
+    private var website: Website
 
     init(website: Website) {
         self.website = website
@@ -54,7 +54,7 @@ class Webster {
 
         if pageBatch.pages.isEmpty {
             print("No pages to crawl.")
-            
+
             completion?()
 
             return
@@ -72,7 +72,7 @@ class Webster {
 
             pageGroup.enter()
 
-            // Visit our page            
+            // Visit our page
             self.visit(page)
                 .then(sendPageToServer)
                 .finally {
@@ -93,9 +93,13 @@ class Webster {
     ///
     /// - returns: A promise representing a `PageResponse`
     private func visit(_ page: Page) -> Promise<PageResponse> {
-        return Promise<PageResponse> { resolve, reject in     
-            try? fetch(from: page.url) {            
+        return Promise<PageResponse> { resolve, reject in
+            try? fetch(from: page.url) {
+              if $0.error {
+                reject(FetchError.ServerError("There was a server error"))
+              } else {
                 resolve(PageResponse(fetchResponse: $0, page: page))
+              }
             }
         }
     }
@@ -115,5 +119,5 @@ class Webster {
                 resolve(page)
             })
         }
-    }    
+    }
 }

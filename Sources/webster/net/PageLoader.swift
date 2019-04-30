@@ -11,6 +11,7 @@ struct FetchResponse {
 
 enum FetchError: Error {
     case InvalidURL(String)
+    case ServerError(String)
 }
 
 /**
