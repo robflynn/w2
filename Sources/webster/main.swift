@@ -16,8 +16,8 @@ func getWebsites() -> [Website] {
     return websites
 }
 
-func getPageQueue(for website: Website) -> PageQueue {
-    guard let pageQueue = try? await(api.pageQueue(for: website)) else {
+func getPageQueue(for website: Website, withBatchSize batchSize: Int, matching urlFilter: String?) -> PageQueue {
+    guard let pageQueue = try? await(api.pageQueue(for: website, withBatchSize: batchSize, matching: urlFilter)) else {
         // TODO: We probably want to break the error down more specifically
         print("Couldn't fetch page batch.")
 
@@ -74,8 +74,9 @@ Group {
             Argument<String>("name", description: "The name of the website to crawl"),
             Option<TimeInterval>("rate", default: Defaults.pagesPerSecond, description: "Max page loads per second"),
             Option<Int>("batch-size", default: Defaults.batchSize, description: "Number of pages to claim in a single batch"),
+            Option<String>("match", default: "", description: "Prioritize urls containing the specified term in their address"),
             Option<Int>("queues", default: 1, description: "Number of queues to crawl in parallel. This will multiply crawl rate by the number of queues.")
-        ) { (name: String, rate: TimeInterval, batch: Int, queues: Int) in
+        ) { (name: String, rate: TimeInterval, batch: Int, match: String, queues: Int) in
             let websites = getWebsites()
 
             guard let website = websites.first(where: { $0.name == name }) else {
@@ -89,6 +90,10 @@ Group {
             print("Rate: \(rate) pages per second")
             print("Batch Size: \(batch) pages")
 
+            if match != "" {
+              print("Matching: \(match)")
+            }
+
             let queueGroup = DispatchGroup()
             let spiderlingQueue = DispatchQueue(label: "com.thingerly.webster.spiderling-queue", attributes: .concurrent)
 
@@ -101,6 +106,8 @@ Group {
                     let webster = Webster(website: website)
                     webster.rate = rate
                     webster.batchSize = batch
+
+                    if match != "" { webster.matching = match }
 
                     webster.crawl {
                         queueGroup.leave()

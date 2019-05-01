@@ -16,6 +16,7 @@ class Webster {
     var rate: Rate = Defaults.pagesPerSecond
     var state: WebsterState = .idle
     var batchSize: Int = Defaults.batchSize
+    var matching: String?
 
     private var website: Website
 
@@ -48,7 +49,7 @@ class Webster {
 
     private func crawlLoop(completion: (() -> Void)? = nil) {
         // Get a batch of pages
-        let pageBatch = getPageQueue(for: website)
+        let pageBatch = getPageQueue(for: website, withBatchSize: batchSize, matching: matching)
 
         logger.error("Received page batch (\(pageBatch.pages.count)):")
 
