@@ -65,8 +65,7 @@ extension JSONAPIClient {
             completion?(.failure(.decodingError))
           }
         case .failure(let error):
-          logger.error("Is this where the error is")
-          logger.debug(error)
+          logger.error(error)
 
           completion?(.failure(error))
       }

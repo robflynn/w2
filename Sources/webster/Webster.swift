@@ -113,12 +113,14 @@ class Webster {
     /// - returns: A promise representing the page that was sent to the server
     private func sendPageToServer(response: PageResponse) -> Promise<Page> {
         return Promise<Page> { resolve, reject in
-            api.update(page: response.page, withResponse: response.fetchResponse).then({ page in
+            api.update(page: response.page, withResponse: response.fetchResponse).then { page in
                 logger.debug("Page sent to server...")
                 logger.debug(page)
 
                 resolve(page)
-            })
+            }.onError { err in
+              reject(err)
+            }
         }
     }
 }
