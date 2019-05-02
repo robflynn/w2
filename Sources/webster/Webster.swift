@@ -51,7 +51,7 @@ class Webster {
         // Get a batch of pages
         let pageBatch = getPageQueue(for: website, withBatchSize: batchSize, matching: matching)
 
-        logger.error("Received page batch (\(pageBatch.pages.count)):")
+        logger.debug("Received page batch (\(pageBatch.pages.count)):", usingIcon: "🥞")
 
         if pageBatch.pages.isEmpty {
             print("No pages to crawl.")

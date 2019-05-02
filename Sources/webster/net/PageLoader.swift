@@ -69,7 +69,7 @@ func fetch(from urlString: String, completion: ((FetchResponse) -> Void)?) throw
         completion?(fetchResponse)
     }
 
-    logger.debug("Fetching url....")
+    logger.debug("Fetching url: \(urlString)")
 
     task.resume()
 }
