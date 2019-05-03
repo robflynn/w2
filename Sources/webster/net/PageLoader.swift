@@ -21,10 +21,18 @@ enum FetchError: Error {
  *
  * - parameter from: The URL of the page to fetch
  **/
-func fetch(from urlString: String, completion: ((FetchResponse) -> Void)?) throws {
+func fetch(from urlString: String, completion: ((FetchResponse) -> Void)?) {
 
     guard let url = URL(string: urlString) else {
-        throw FetchError.InvalidURL(urlString)
+      let fetchResponse = FetchResponse(url: urlString,
+                                        content: nil,
+                                        contentType: "text/plain",
+                                        responseCode: 500,
+                                        error: true)
+
+      completion?(fetchResponse)
+
+      return
     }
 
     var request = URLRequest(url: url)

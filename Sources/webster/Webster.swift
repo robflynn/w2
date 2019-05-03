@@ -95,7 +95,7 @@ class Webster {
     /// - returns: A promise representing a `PageResponse`
     private func visit(_ page: Page) -> Promise<PageResponse> {
         return Promise<PageResponse> { resolve, reject in
-            try? fetch(from: page.url) {
+            fetch(from: page.url) {
               if $0.error {
                 reject(FetchError.ServerError("There was a server error"))
               } else {
