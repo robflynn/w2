@@ -17,6 +17,7 @@ func getWebsites() -> [Website] {
 }
 
 func getPageQueue(for website: Website, withBatchSize batchSize: Int, matching urlFilter: String?) -> PageQueue {
+    logger.debug("We're gonna request the page queue. Is this the await that's hanging?", usingIcon: "⚠️")
     guard let pageQueue = try? await(api.pageQueue(for: website, withBatchSize: batchSize, matching: urlFilter)) else {
         // TODO: We probably want to break the error down more specifically
         print("Couldn't fetch page batch.")

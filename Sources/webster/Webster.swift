@@ -71,13 +71,19 @@ class Webster {
         for page in pageBatch.pages {
             bucket.consume(1)
 
+            logger.debug("Entering: \(page.id)", usingIcon: "👩‍🎤")
+
             pageGroup.enter()
+
+            logger.debug("Entered: \(page.id)", usingIcon: "👩‍🎤")
 
             // Visit our page
             self.visit(page)
                 .then(sendPageToServer)
                 .finally {
+                    logger.debug("Leaving: \(page.id)", usingIcon: "👩‍🎤")
                     pageGroup.leave()
+                    logger.debug("Left: \(page.id)", usingIcon: "👩‍🎤")
                 }
         }
 

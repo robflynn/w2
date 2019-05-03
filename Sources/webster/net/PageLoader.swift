@@ -23,6 +23,7 @@ enum FetchError: Error {
  **/
 func fetch(from urlString: String, completion: ((FetchResponse) -> Void)?) throws {
 
+    // invalid url deadlocking
     guard let url = URL(string: urlString) else {
         throw FetchError.InvalidURL(urlString)
     }
