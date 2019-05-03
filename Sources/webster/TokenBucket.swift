@@ -9,18 +9,18 @@
 import Foundation
 
 public class TokenBucket: NSObject {
-    
+
     public let capacity: Int
     public private(set) var replenishingInterval: TimeInterval
     public private(set) var tokensPerInterval: Int
-    
+
     private var _tokenCount: Int
     public var tokenCount: Int {
         replenish()
         return _tokenCount
     }
     private var lastReplenished: Date
-    
+
     public init(capacity: Int, tokensPerInterval: Int, interval: TimeInterval, initialTokenCount: Int = 0) {
         guard interval > 0.0 else {
             fatalError("interval must be a positive number")
@@ -31,24 +31,27 @@ public class TokenBucket: NSObject {
         self._tokenCount = min(capacity, initialTokenCount)
         self.lastReplenished = Date()
     }
-    
+
     public func consume(_ count: Int) {
+        logger.debug("Consuming \(count) tokens...", usingIcon: "💧")
+
         guard count <= capacity else {
             fatalError("Cannot consume \(count) amount of tokens on a bucket with capacity \(capacity)")
         }
-        
+
         let _ = tryConsume(count, until: Date.distantFuture)
     }
-    
+
     public func tryConsume(_ count: Int, until limitDate: Date) -> Bool {
         guard count <= capacity else {
             fatalError("Cannot consume \(count) amount of tokens on a bucket with capacity \(capacity)")
         }
-        
+
+        logger.debug("In the internal try consume for the bucket... waiting...")
         return wait(until: limitDate, for: count)
     }
-    
-    
+
+
     private let condition = NSCondition()
     private func replenish() {
         condition.lock()
@@ -61,10 +64,10 @@ public class TokenBucket: NSObject {
         }
         condition.unlock()
     }
-    
+
     private func wait(until limitDate: Date, for tokens: Int) -> Bool {
         replenish()
-        
+
         condition.lock()
         defer {
             condition.unlock()
@@ -73,6 +76,9 @@ public class TokenBucket: NSObject {
             if limitDate < Date() {
                 return false
             }
+
+            logger.debug("Replenishing a token...", usingIcon: "💚")
+
             DispatchQueue.global().async {
                 self.replenish()
             }
